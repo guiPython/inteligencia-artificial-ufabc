@@ -1,5 +1,6 @@
 from typing import TypeAlias, List, Tuple, Literal
 from random import choice
+from itertools import chain
 
 """
 Definicao de um jogo:
@@ -46,16 +47,15 @@ def linha_eh_terminal(linha: List[Jogador | None]) -> Terminal:
 
 def eh_terminal(estado: Estado) -> Terminal:
     tabuleiro, _ = estado
-    tabuleiro_transposto = zip(*tabuleiro)
+    tabuleiro_transposto = list(zip(*tabuleiro))
     diagonal: List[Jogador | None] = [tabuleiro[x][x] for x in range(3)]
     outra: List[Jogador | None] = [tabuleiro[x][2 - x] for x in range(3)]
 
-    for linha in [tabuleiro, tabuleiro_transposto, diagonal, outra] :
+    for linha in [*tabuleiro, *tabuleiro_transposto, diagonal, outra]:
         vencedor, eh = linha_eh_terminal(linha)
-        if not eh: return (None, False)
         if eh and vencedor is not None: return (vencedor, True)
 
-    return (None, True)
+    return (None, False) if None in chain.from_iterable(tabuleiro) else (None, True)
 
 def utilidade(estado: Estado, jogador: Jogador) -> Utilidade:
     vencedor, terminal = eh_terminal(estado)
